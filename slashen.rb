@@ -95,15 +95,18 @@ class Slashen < Gosu::Window
       vy = 0
       vy += 1 if @inputs[DOWN]
       vy -= 1 if @inputs[UP]
-      @x += vx * @delta * MOVEMENT_SPEED
-      @y += vy * @delta * MOVEMENT_SPEED
 
-      if @inputs.any?
+      if vx != 0 || vy != 0
         @dir_x = vx
         @dir_y = vy
         @me_a = Math::atan2(vy, vx)
         @me_d = Math::sqrt(vx*vx + vy*vy)
+        vx /= @me_d
+        vy /= @me_d
       end
+
+      @x += vx * @delta * MOVEMENT_SPEED
+      @y += vy * @delta * MOVEMENT_SPEED
 
       if @shwing > 0.0
         @shwing -= SHWING * @delta
