@@ -15,12 +15,17 @@ def abs x
   end
 end
 
+def dot x1, y1, x2, y2
+  x1*x2 + y1*y2
+end
+
 class Slashen < Gosu::Window
   def initialize width = 640, height = 480, fullscreen = false
     super
 
     @dude = Gosu::Image.new self, "dude.png"
     @shwing_sprite = Gosu::Image.load_tiles self, "shwing.png", 72, 72, false
+    @debug = Gosu::Image.new self, "debug.png"
     @nasty = Gosu::Image.new self, "nasty.png"
     @message = Gosu::Image.from_text self, "Press Space to Kill Things", "monospace", 30
     @time = Gosu::milliseconds
@@ -49,10 +54,12 @@ class Slashen < Gosu::Window
     @nasties = []
     @x, @y = 320, 240
     @vx, @vy = 0, 0
+    @dir_x, @dir_y = 1, 0
     @last_nasty = 0
     @shwing = 0.0
     @inputs = Array.new(4, false)
     @me_a = 0.0
+    @me_d = 1.0
     @score = 0
     @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
   end
@@ -92,7 +99,10 @@ class Slashen < Gosu::Window
       @y += vy * @delta * MOVEMENT_SPEED
 
       if @inputs.any?
+        @dir_x = vx
+        @dir_y = vy
         @me_a = Math::atan2(vy, vx)
+        @me_d = Math::sqrt(vx*vx + vy*vy)
       end
 
       if @shwing > 0.0
@@ -111,9 +121,9 @@ class Slashen < Gosu::Window
         dy = @y - nasty[:y]
 
         d = Math::sqrt(dx*dx + dy*dy)
-        a = Math::atan2(dy,dx)
+        nasty_dot = dot(@dir_x/@me_d,@dir_y/@me_d,-dx/d,-dy/d)
         kill = false
-        if d < (36+16) && abs(a-@me_a) < Math::PI && @shwing > 0.0
+        if d < (36+16) && nasty_dot > 0 && @shwing > 0.0
           kill = true
           @score += 1
           @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
@@ -143,7 +153,8 @@ class Slashen < Gosu::Window
 
     if @shwing > 0.0
       i = (@shwing * @shwing_sprite.size).to_i
-      @shwing_sprite[i].draw_rot @x, @y, 1, @me_a*180.0/Math::PI - 45.0
+      @shwing_sprite[i].draw_rot @x, @y, 1, @me_a*180.0/Math::PI
+      #@debug.draw_rot @x, @y, 1, @me_a*180.0/Math::PI
     end
 
     unless @playing
