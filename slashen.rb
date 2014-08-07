@@ -26,6 +26,8 @@ class Slashen < Gosu::Window
     @time = Gosu::milliseconds
     start_game
     @playing = false
+    @best_score = 0
+    @best_image = Gosu::Image.from_text self, "Best #{@best_score} kills", "monospace", 30
   end
 
   def button_up id
@@ -117,6 +119,11 @@ class Slashen < Gosu::Window
           @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
         elsif d < 24+16
           @playing = false
+          @you_got = Gosu::Image.from_text self, "You got #{@score} kills", "monospace", 30
+          if @score > @best_score
+            @best_score = @score
+            @best_image = Gosu::Image.from_text self, "Best #{@best_score} kills", "monospace", 30
+          end
         end
 
         nasty[:x] += (dx/d) * NASTY_SPEED * @delta
@@ -141,6 +148,10 @@ class Slashen < Gosu::Window
 
     unless @playing
       @message.draw 0, 0, 1
+      @best_image.draw 0, 40, 1
+      if @you_got
+        @you_got.draw 0, 80, 1
+      end
     else
       @score_message.draw 0, 0, 1
     end
