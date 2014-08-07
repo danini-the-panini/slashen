@@ -51,6 +51,8 @@ class Slashen < Gosu::Window
     @shwing = 0.0
     @inputs = Array.new(4, false)
     @me_a = 0.0
+    @score = 0
+    @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
   end
 
   def button_down id
@@ -111,6 +113,8 @@ class Slashen < Gosu::Window
         kill = false
         if d < (36+16) && abs(a-@me_a) < Math::PI && @shwing > 0.0
           kill = true
+          @score += 1
+          @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
         elsif d < 24+16
           @playing = false
         end
@@ -137,6 +141,8 @@ class Slashen < Gosu::Window
 
     unless @playing
       @message.draw 0, 0, 1
+    else
+      @score_message.draw 0, 0, 1
     end
   end
 end
