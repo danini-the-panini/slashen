@@ -27,7 +27,7 @@ class Slashen < Gosu::Window
     @shwing_sprite = Gosu::Image.load_tiles self, "shwing.png", 72, 72, false
     @debug = Gosu::Image.new self, "debug.png"
     @nasty = Gosu::Image.new self, "nasty.png"
-    @message = Gosu::Image.from_text self, "Press Space to Kill Things", "monospace", 30
+    @message = Gosu::Image.from_text self, "Press Enter to Kill Things", "monospace", 30
     @time = Gosu::milliseconds
     start_game
     @playing = false
@@ -36,21 +36,21 @@ class Slashen < Gosu::Window
   end
 
   def button_up id
-    return unless @playing
-    case id
-    when Gosu::KbUp
-      @inputs[UP] = false
-    when Gosu::KbDown
-      @inputs[DOWN] = false
-    when Gosu::KbLeft
-      @inputs[LEFT] = false
-    when Gosu::KbRight
-      @inputs[RIGHT] = false
+    if @playing
+      case id
+      when Gosu::KbUp
+        @inputs[UP] = false
+      when Gosu::KbDown
+        @inputs[DOWN] = false
+      when Gosu::KbLeft
+        @inputs[LEFT] = false
+      when Gosu::KbRight
+        @inputs[RIGHT] = false
+      end
     end
   end
 
-  def start_game
-    @playing = true
+  def reset_game
     @nasties = []
     @x, @y = 320, 240
     @vx, @vy = 0, 0
@@ -64,22 +64,27 @@ class Slashen < Gosu::Window
     @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
   end
 
+  def start_game
+    reset_game
+    @playing = true
+  end
+
   def button_down id
-    if !@playing && id == Gosu::KbSpace
-      start_game
-      return
-    end
-    case id
-    when Gosu::KbUp
-      @inputs[UP] = true
-    when Gosu::KbDown
-      @inputs[DOWN] = true
-    when Gosu::KbLeft
-      @inputs[LEFT] = true
-    when Gosu::KbRight
-      @inputs[RIGHT] = true
-    when Gosu::KbSpace
-      @shwing = 1.0
+    if !@playing
+      start_game if id == Gosu::KbEnter || id == Gosu::KbReturn
+    else
+      case id
+      when Gosu::KbUp
+        @inputs[UP] = true
+      when Gosu::KbDown
+        @inputs[DOWN] = true
+      when Gosu::KbLeft
+        @inputs[LEFT] = true
+      when Gosu::KbRight
+        @inputs[RIGHT] = true
+      when Gosu::KbSpace
+        @shwing = 1.0 unless @shwing > 0.0
+      end
     end
   end
 
@@ -156,6 +161,8 @@ class Slashen < Gosu::Window
 
     if @shwing > 0.0
       i = (@shwing * @shwing_sprite.size).to_i
+      i = 0 if i < 0
+      i = @shwing_sprite.size-1 if i >= @shwing_sprite.size
       @shwing_sprite[i].draw_rot @x, @y, 1, @me_a*180.0/Math::PI
       #@debug.draw_rot @x, @y, 1, @me_a*180.0/Math::PI
     end
