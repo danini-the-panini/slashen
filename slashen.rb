@@ -5,6 +5,7 @@ NASTY_SPEED = 0.2
 SHWING = 0.01
 NASTY_TIME = 1000
 ATTACK_MOVE = 0.15
+NASTY_STAYS = 0.001
 
 UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
 
@@ -28,6 +29,7 @@ class Slashen < Gosu::Window
     @shwing_sprite = Gosu::Image.load_tiles self, "shwing.png", 72, 72, false
     @debug = Gosu::Image.new self, "debug.png"
     @nasty = Gosu::Image.new self, "nasty.png"
+    @dead_nasty = Gosu::Image.new self, "dead_nasty.png"
     @message = Gosu::Image.from_text self, "Press Enter to Kill Things", "monospace", 30
     @time = Gosu::milliseconds
     @speed = Gosu::Image.new self, "speed.png"
@@ -130,29 +132,34 @@ class Slashen < Gosu::Window
 
 
       @nasties.delete_if do |nasty|
-        dx = @x - nasty[:x]
-        dy = @y - nasty[:y]
+        if nasty[:death].nil?
+          dx = @x - nasty[:x]
+          dy = @y - nasty[:y]
 
-        d = Math::sqrt(dx*dx + dy*dy)
-        nasty_dot = dot(@dir_x/@me_d,@dir_y/@me_d,-dx/d,-dy/d)
-        kill = false
-        if d < (36+16) && nasty_dot > 0 && @shwing > 0.0
-          kill = true
-          @score += 1
-          @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
-        elsif d < 24+16
-          @playing = false
-          @you_got = Gosu::Image.from_text self, "You got #{@score} kills", "monospace", 30
-          if @score > @best_score
-            @best_score = @score
-            @best_image = Gosu::Image.from_text self, "Best #{@best_score} kills", "monospace", 30
+          d = Math::sqrt(dx*dx + dy*dy)
+          nasty_dot = dot(@dir_x/@me_d,@dir_y/@me_d,-dx/d,-dy/d)
+          if d < (36+16) && nasty_dot > 0 && @shwing > 0.0
+            nasty[:death] = 1.0
+            @score += 1
+            @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
+          elsif d < 24+16
+            @playing = false
+            @you_got = Gosu::Image.from_text self, "You got #{@score} kills", "monospace", 30
+            if @score > @best_score
+              @best_score = @score
+              @best_image = Gosu::Image.from_text self, "Best #{@best_score} kills", "monospace", 30
+            end
           end
+
+          nasty[:x] += (dx/d) * NASTY_SPEED * @delta
+          nasty[:y] += (dy/d) * NASTY_SPEED * @delta
+
+          false
+        else
+          nasty[:death] -= NASTY_STAYS * @delta
+
+          nasty[:death] < 0.0
         end
-
-        nasty[:x] += (dx/d) * NASTY_SPEED * @delta
-        nasty[:y] += (dy/d) * NASTY_SPEED * @delta
-
-        kill
       end
     end
   end
@@ -161,7 +168,7 @@ class Slashen < Gosu::Window
     @dude.draw_rot(@x, @y, 1, 0)
 
     @nasties.each do |nasty|
-      @nasty.draw_rot nasty[:x], nasty[:y], 1, 0.0
+      (nasty[:death] ? @dead_nasty : @nasty).draw_rot nasty[:x], nasty[:y], 1, 0.0
     end
 
     if @shwing > 0.0
