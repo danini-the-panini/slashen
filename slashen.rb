@@ -26,6 +26,7 @@ class Slashen < Gosu::Window
     super
 
     @dude = Gosu::Image.new self, "dude.png"
+    @dead_dude = Gosu::Image.new self, "dead_dude.png"
     @shwing_sprite = Gosu::Image.load_tiles self, "shwing.png", 72, 72, false
     @debug = Gosu::Image.new self, "debug.png"
     @nasty = Gosu::Image.new self, "nasty.png"
@@ -66,6 +67,7 @@ class Slashen < Gosu::Window
     @me_d = 1.0
     @score = 0
     @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
+    @dead = false
   end
 
   def start_game
@@ -123,13 +125,11 @@ class Slashen < Gosu::Window
       @x += vx * @delta * MOVEMENT_SPEED
       @y += vy * @delta * MOVEMENT_SPEED
 
-
       if @time - @last_nasty > NASTY_TIME
         @last_nasty = @time
         a = Gosu::random(0,Math::PI*2)
         @nasties << { x: 1000*Math::cos(a), y: 1000*Math::sin(a), a: 0.0 }
       end
-
 
       @nasties.delete_if do |nasty|
         if nasty[:death].nil?
@@ -145,6 +145,7 @@ class Slashen < Gosu::Window
             @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
           elsif d < 24+16
             @playing = false
+            @dead = true
             @you_got = Gosu::Image.from_text self, "You got #{@score} kills", "monospace", 30
             if @score > @best_score
               @best_score = @score
@@ -166,11 +167,13 @@ class Slashen < Gosu::Window
   end
 
   def draw
+    @dead_dude.draw_rot(@x, @y, 1, 0) if @dead
+
     @nasties.each do |nasty|
       (nasty[:death] ? @dead_nasty : @nasty).draw_rot nasty[:x], nasty[:y], 1, nasty[:a]
     end
 
-    @dude.draw_rot(@x, @y, 1, 0)
+    @dude.draw_rot(@x, @y, 1, 0) unless @dead
 
     if @shwing > 0.0
       i = (@shwing * @shwing_sprite.size).to_i
