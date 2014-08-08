@@ -30,6 +30,7 @@ class Slashen < Gosu::Window
     @nasty = Gosu::Image.new self, "nasty.png"
     @message = Gosu::Image.from_text self, "Press Enter to Kill Things", "monospace", 30
     @time = Gosu::milliseconds
+    @speed = Gosu::Image.new self, "speed.png"
     start_game
     @playing = false
     @best_score = 0
@@ -169,6 +170,8 @@ class Slashen < Gosu::Window
       i = @shwing_sprite.size-1 if i >= @shwing_sprite.size
       @shwing_sprite[i].draw_rot @x, @y, 1, @me_a*180.0/Math::PI
       #@debug.draw_rot @x, @y, 1, @me_a*180.0/Math::PI
+
+      @speed.draw_rot @x, @y, 1, @me_a*180.0/Math::PI, 1.0, 0.5
     end
 
     unless @playing
