@@ -4,6 +4,7 @@ MOVEMENT_SPEED = 0.3
 NASTY_SPEED = 0.2
 SHWING = 0.01
 NASTY_TIME = 1000
+ATTACK_MOVE = 0.15
 
 UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
 
@@ -102,20 +103,23 @@ class Slashen < Gosu::Window
       vy -= 1 if @inputs[UP]
 
       if vx != 0 || vy != 0
-        @dir_x = vx
-        @dir_y = vy
         @me_a = Math::atan2(vy, vx)
         @me_d = Math::sqrt(vx*vx + vy*vy)
         vx /= @me_d
         vy /= @me_d
+        @dir_x = vx
+        @dir_y = vy
+      end
+
+      if @shwing > 0.0
+        @shwing -= SHWING * @delta
+        vx += @dir_x * ATTACK_MOVE * @delta
+        vy += @dir_y * ATTACK_MOVE * @delta
       end
 
       @x += vx * @delta * MOVEMENT_SPEED
       @y += vy * @delta * MOVEMENT_SPEED
 
-      if @shwing > 0.0
-        @shwing -= SHWING * @delta
-      end
 
       if @time - @last_nasty > NASTY_TIME
         @last_nasty = @time
