@@ -127,7 +127,7 @@ class Slashen < Gosu::Window
       if @time - @last_nasty > NASTY_TIME
         @last_nasty = @time
         a = Gosu::random(0,Math::PI*2)
-        @nasties << { x: 1000*Math::cos(a), y: 1000*Math::sin(a) }
+        @nasties << { x: 1000*Math::cos(a), y: 1000*Math::sin(a), a: 0.0 }
       end
 
 
@@ -140,6 +140,7 @@ class Slashen < Gosu::Window
           nasty_dot = dot(@dir_x/@me_d,@dir_y/@me_d,-dx/d,-dy/d)
           if d < (36+16) && nasty_dot > 0 && @shwing > 0.0
             nasty[:death] = 1.0
+            nasty[:a] = @me_a*180.0/Math::PI
             @score += 1
             @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
           elsif d < 24+16
@@ -165,11 +166,11 @@ class Slashen < Gosu::Window
   end
 
   def draw
-    @dude.draw_rot(@x, @y, 1, 0)
-
     @nasties.each do |nasty|
-      (nasty[:death] ? @dead_nasty : @nasty).draw_rot nasty[:x], nasty[:y], 1, 0.0
+      (nasty[:death] ? @dead_nasty : @nasty).draw_rot nasty[:x], nasty[:y], 1, nasty[:a]
     end
+
+    @dude.draw_rot(@x, @y, 1, 0)
 
     if @shwing > 0.0
       i = (@shwing * @shwing_sprite.size).to_i
