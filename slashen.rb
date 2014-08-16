@@ -22,7 +22,7 @@ def dot x1, y1, x2, y2
 end
 
 class Slashen < Gosu::Window
-  def initialize width = 640, height = 480, fullscreen = false
+  def initialize width = 800, height = 600, fullscreen = false
     super
 
     @dude = Gosu::Image.new self, "dude.png"
@@ -43,13 +43,13 @@ class Slashen < Gosu::Window
   def button_up id
     if @playing
       case id
-      when Gosu::KbUp
+      when Gosu::KbUp, Gosu::KbI
         @inputs[UP] = false
-      when Gosu::KbDown
+      when Gosu::KbDown, Gosu::KbK
         @inputs[DOWN] = false
-      when Gosu::KbLeft
+      when Gosu::KbLeft, Gosu::KbJ
         @inputs[LEFT] = false
-      when Gosu::KbRight
+      when Gosu::KbRight, Gosu::KbL
         @inputs[RIGHT] = false
       end
     end
@@ -57,7 +57,7 @@ class Slashen < Gosu::Window
 
   def reset_game
     @nasties = []
-    @x, @y = 320, 240
+    @x, @y = 400, 300
     @vx, @vy = 0, 0
     @dir_x, @dir_y = 1, 0
     @last_nasty = 0
@@ -80,13 +80,13 @@ class Slashen < Gosu::Window
       start_game if id == Gosu::KbEnter || id == Gosu::KbReturn
     else
       case id
-      when Gosu::KbUp
+      when Gosu::KbUp, Gosu::KbI
         @inputs[UP] = true
-      when Gosu::KbDown
+      when Gosu::KbDown, Gosu::KbK
         @inputs[DOWN] = true
-      when Gosu::KbLeft
+      when Gosu::KbLeft, Gosu::KbJ
         @inputs[LEFT] = true
-      when Gosu::KbRight
+      when Gosu::KbRight, Gosu::KbL
         @inputs[RIGHT] = true
       when Gosu::KbSpace
         @shwing = 1.0 unless @shwing > 0.0
