@@ -75,6 +75,11 @@ class Slashen < Gosu::Window
     @playing = true
   end
 
+  def do_shwing
+    @shwing = 1.0
+    @shwing_kills = 0
+  end
+
   def button_down id
     if !@playing
       start_game if id == Gosu::KbEnter || id == Gosu::KbReturn
@@ -89,7 +94,7 @@ class Slashen < Gosu::Window
       when Gosu::KbRight, Gosu::KbL
         @inputs[RIGHT] = true
       when Gosu::KbSpace
-        @shwing = 1.0 unless @shwing > 0.0
+        do_shwing unless @shwing > 0.0
       end
     end
   end
@@ -120,6 +125,12 @@ class Slashen < Gosu::Window
         @shwing -= SHWING * @delta
         vx += @dir_x * ATTACK_MOVE * @delta
         vy += @dir_y * ATTACK_MOVE * @delta
+
+        if @shwing <= 0.0
+          if @shwing_kills > 1
+            puts "#{@shwing_kills} kills!"
+          end
+        end
       end
 
       @x += vx * @delta * MOVEMENT_SPEED
@@ -139,6 +150,7 @@ class Slashen < Gosu::Window
           d = Math::sqrt(dx*dx + dy*dy)
           nasty_dot = dot(@dir_x/@me_d,@dir_y/@me_d,-dx/d,-dy/d)
           if d < (36+16) && nasty_dot > 0 && @shwing > 0.0
+            @shwing_kills += 1
             nasty[:death] = 1.0
             nasty[:a] = @me_a*180.0/Math::PI + (Gosu::random(-20.0,20.0))
             @score += 1
