@@ -3,6 +3,7 @@ require 'gosu'
 MOVEMENT_SPEED = 0.3
 NASTY_SPEED = 0.2
 SHWING = 0.01
+MULTIKILL_SPEED = 0.003
 NASTY_TIME = 1000
 ATTACK_MOVE = 0.15
 NASTY_STAYS = 0.001
@@ -21,6 +22,24 @@ def dot x1, y1, x2, y2
   x1*x2 + y1*y2
 end
 
+class MultiKill
+  def initialize window, kills, x, y
+    @sprite = Gosu::Image.from_text window, "#{kills} kills!", Gosu::default_font_name, 10+(kills*10)
+    @time = 1.0
+    @x, @y = x, y
+  end
+
+  def update dt
+    @time -= MULTIKILL_SPEED * dt
+
+    @time <= 0.0
+  end
+
+  def draw
+    @sprite.draw_rot @x, @y-(1-@time)*40, 1, 0
+  end
+end
+
 class Slashen < Gosu::Window
   def initialize width = 800, height = 600, fullscreen = false
     super
@@ -31,13 +50,14 @@ class Slashen < Gosu::Window
     @debug = Gosu::Image.new self, "debug.png"
     @nasty = Gosu::Image.new self, "nasty.png"
     @dead_nasty = Gosu::Image.new self, "dead_nasty.png"
-    @message = Gosu::Image.from_text self, "Press Enter to Kill Things", "monospace", 30
+    @message = Gosu::Image.from_text self, "Press Enter to Kill Things", Gosu::default_font_name, 30
     @time = Gosu::milliseconds
     @speed = Gosu::Image.new self, "speed.png"
+    @multikills = []
     start_game
     @playing = false
     @best_score = 0
-    @best_image = Gosu::Image.from_text self, "Best #{@best_score} kills", "monospace", 30
+    @best_image = Gosu::Image.from_text self, "Best #{@best_score} kills", Gosu::default_font_name, 30
   end
 
   def button_up id
@@ -104,6 +124,10 @@ class Slashen < Gosu::Window
     @delta = newtime - @time
     @time = newtime
 
+    @multikills.delete_if do |mk|
+      mk.update @delta
+    end
+
     if @playing
       vx = 0
       vx += 1 if @inputs[RIGHT]
@@ -128,7 +152,7 @@ class Slashen < Gosu::Window
 
         if @shwing <= 0.0
           if @shwing_kills > 1
-            puts "#{@shwing_kills} kills!"
+            @multikills << MultiKill.new(self, @shwing_kills, @x, @y)
           end
         end
       end
@@ -205,6 +229,10 @@ class Slashen < Gosu::Window
       end
     else
       @score_message.draw 0, 0, 1
+    end
+
+    @multikills.each do |mk|
+      mk.draw
     end
   end
 end
