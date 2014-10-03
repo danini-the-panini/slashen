@@ -57,7 +57,9 @@ class Slashen < Gosu::Window
     start_game
     @playing = false
     @best_score = 0
-    @best_image = Gosu::Image.from_text self, "Best #{@best_score} kills", Gosu::default_font_name, 30
+    @best_kills = 0
+    @best_combo = 0
+    update_best_image
   end
 
   def button_up id
@@ -85,9 +87,23 @@ class Slashen < Gosu::Window
     @inputs = Array.new(4, false)
     @me_a = 0.0
     @me_d = 1.0
+    @kills = 0
     @score = 0
-    @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
+    @max_combo = 0
     @dead = false
+    update_score_image
+  end
+
+  def update_score_image
+    @score_message = Gosu::Image.from_text self, "#{@kills} kills, #{@score} score, best combo: #{@max_combo}", Gosu.default_font_name, 30
+  end
+
+  def update_best_image
+    @best_image = Gosu::Image.from_text self, "Best #{@best_kills} kills, #{@best_score} score, #{@best_combo} combo.", Gosu::default_font_name, 30
+  end
+
+  def update_you_got
+    @you_got = Gosu::Image.from_text self, "You got #{@kills} kills, #{@score} score, #{@max_combo} combo.", Gosu::default_font_name, 30
   end
 
   def start_game
@@ -151,9 +167,14 @@ class Slashen < Gosu::Window
         vy += @dir_y * ATTACK_MOVE * @delta
 
         if @shwing <= 0.0
+          @score += @shwing_kills*2 - 1 unless @shwing_kills == 0
           if @shwing_kills > 1
             @multikills << MultiKill.new(self, @shwing_kills, @x, @y)
           end
+          if @shwing_kills > @max_combo
+            @max_combo = @shwing_kills
+          end
+          update_score_image
         end
       end
 
@@ -177,16 +198,22 @@ class Slashen < Gosu::Window
             @shwing_kills += 1
             nasty[:death] = 1.0
             nasty[:a] = @me_a*180.0/Math::PI + (Gosu::random(-20.0,20.0))
-            @score += 1
-            @score_message = Gosu::Image.from_text self, "#{@score} kills", "monospace", 30
+            @kills += 1
+            update_score_image
           elsif d < 24+16
             @playing = false
             @dead = true
-            @you_got = Gosu::Image.from_text self, "You got #{@score} kills", "monospace", 30
             if @score > @best_score
               @best_score = @score
-              @best_image = Gosu::Image.from_text self, "Best #{@best_score} kills", "monospace", 30
             end
+            if @kills > @best_kills
+              @best_kills = @kills
+            end
+            if @max_combo > @best_combo
+              @best_combo = @max_combo
+            end
+            update_best_image
+            update_you_got
           end
 
           nasty[:x] += (dx/d) * NASTY_SPEED * @delta
