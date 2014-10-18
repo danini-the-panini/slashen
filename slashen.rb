@@ -65,13 +65,13 @@ class Slashen < Gosu::Window
   def button_up id
     if @playing
       case id
-      when Gosu::KbUp, Gosu::KbI
+      when Gosu::KbUp, Gosu::KbI, Gosu::GpUp
         @inputs[UP] = false
-      when Gosu::KbDown, Gosu::KbK
+      when Gosu::KbDown, Gosu::KbK, Gosu::GpDown
         @inputs[DOWN] = false
-      when Gosu::KbLeft, Gosu::KbJ
+      when Gosu::KbLeft, Gosu::KbJ, Gosu::GpLeft
         @inputs[LEFT] = false
-      when Gosu::KbRight, Gosu::KbL
+      when Gosu::KbRight, Gosu::KbL, Gosu::GpRight
         @inputs[RIGHT] = false
       end
     end
@@ -118,18 +118,18 @@ class Slashen < Gosu::Window
 
   def button_down id
     if !@playing
-      start_game if id == Gosu::KbEnter || id == Gosu::KbReturn
+      start_game if id == Gosu::KbEnter || id == Gosu::KbReturn || id == Gosu::GpButton12
     else
       case id
-      when Gosu::KbUp, Gosu::KbI
+      when Gosu::KbUp, Gosu::KbI, Gosu::GpUp
         @inputs[UP] = true
-      when Gosu::KbDown, Gosu::KbK
+      when Gosu::KbDown, Gosu::KbK, Gosu::GpDown
         @inputs[DOWN] = true
-      when Gosu::KbLeft, Gosu::KbJ
+      when Gosu::KbLeft, Gosu::KbJ, Gosu::GpLeft
         @inputs[LEFT] = true
-      when Gosu::KbRight, Gosu::KbL
+      when Gosu::KbRight, Gosu::KbL, Gosu::GpRight
         @inputs[RIGHT] = true
-      when Gosu::KbSpace
+      when Gosu::KbSpace, Gosu::GpButton12
         do_shwing unless @shwing > 0.0
       end
     end
