@@ -1,3 +1,3 @@
 source "https://rubygems.org"
 
-gem "gosu"
+gem "gosu", "0.8.6"
