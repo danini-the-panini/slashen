@@ -239,18 +239,74 @@ class Slashen < Gosu::Window
     end
   end
 
+  def endpoints_facing x1, y1, x2, y2, r
+    a = Gosu::angle x1, y1, x2, y2
+    x3 = x1 + Gosu::offset_x(a + 90, r)
+    y3 = y1 + Gosu::offset_y(a + 90, r)
+
+    x4 = x1 + Gosu::offset_x(a - 90, r)
+    y4 = y1 + Gosu::offset_y(a - 90, r)
+
+    [x3, y3, x4, y4]
+  end
+
   def draw
     gl do
-      glClearColor 0.5, 0.5, 0.5, 1.0
+      if @dead
+        glClearColor 0, 0, 0, 1.0
+      else
+        glClearColor 0.3, 0.3, 0.3, 1.0
+      end
       glClear GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT
     end
 
     @nasties.each do |nasty|
       next if nasty[:death]
+
       x = nasty[:x]
       y = nasty[:y]
 
-      m = -(x - @x)/(y - @y)
+      bx1, by1, bx2, by2 = endpoints_facing x, y, @x, @y, 16
+      px1, py1, px2, py2 = endpoints_facing @x, @y, x, y, 24
+
+      #gl 100 do
+        #glBegin GL_LINES
+        #glVertex3f x.to_f, y.to_f, 0.0
+        #glVertex3f @x.to_f, @y.to_f, 0.0
+        #glEnd
+
+        #glBegin GL_LINES
+        #glVertex3f bx1.to_f, by1.to_f, 0.0
+        #glVertex3f bx2.to_f, by2.to_f, 0.0
+        #glVertex3f px2.to_f, py2.to_f, 0.0
+        #glVertex3f px1.to_f, py1.to_f, 0.0
+        #glEnd
+      #end
+
+      a1 = Gosu::angle @x, @y, bx1, by1
+      a2 = Gosu::angle @x, @y, bx2, by2
+
+      ax1 = bx1 + Gosu::offset_x(a1, 1000)
+      ay1 = by1 + Gosu::offset_y(a1, 1000)
+
+      ax2 = bx2 + Gosu::offset_x(a2, 1000)
+      ay2 = by2 + Gosu::offset_y(a2, 1000)
+
+      gl 0 do
+        glDisable GL_DEPTH_TEST
+        glEnable GL_BLEND
+        glBlendEquationSeparate GL_FUNC_ADD, GL_FUNC_ADD
+        glBlendFuncSeparate GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO
+
+        glBegin GL_QUADS
+        glColor4f 0, 0, 0, 0
+        glVertex3f ax1.to_f, ay1.to_f, 0.0
+        glVertex3f ax2.to_f, ay2.to_f, 0.0
+        glColor4f 0, 0, 0, 1
+        glVertex3f bx2.to_f, by2.to_f, 0.0
+        glVertex3f bx1.to_f, by1.to_f, 0.0
+        glEnd
+      end
     end
 
     @dead_dude.draw_rot(@x, @y, 1, 0) if @dead
