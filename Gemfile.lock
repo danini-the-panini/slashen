@@ -1,10 +1,14 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    ffi (1.9.3)
     gosu (0.8.6)
+    opengl-bindings (1.3.5)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  ffi
   gosu (= 0.8.6)
+  opengl-bindings

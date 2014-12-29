@@ -1,4 +1,6 @@
 require 'gosu'
+require 'opengl'
+require 'glfw'
 
 MOVEMENT_SPEED = 0.3
 NASTY_SPEED = 0.2
@@ -9,6 +11,14 @@ ATTACK_MOVE = 0.15
 NASTY_STAYS = 0.001
 
 UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
+
+OpenGL.load_dll
+GLFW.load_dll
+
+include OpenGL
+include GLFW
+
+glfwInit
 
 def abs x
   if x < 0
@@ -230,6 +240,19 @@ class Slashen < Gosu::Window
   end
 
   def draw
+    gl do
+      glClearColor 0.5, 0.5, 0.5, 1.0
+      glClear GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT
+    end
+
+    @nasties.each do |nasty|
+      next if nasty[:death]
+      x = nasty[:x]
+      y = nasty[:y]
+
+      m = -(x - @x)/(y - @y)
+    end
+
     @dead_dude.draw_rot(@x, @y, 1, 0) if @dead
 
     @nasties.each do |nasty|
