@@ -9,6 +9,7 @@ MULTIKILL_SPEED = 0.003
 NASTY_TIME = 1000
 ATTACK_MOVE = 0.15
 NASTY_STAYS = 0.001
+SHADOW_LENGTH = 200
 
 UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
 
@@ -250,13 +251,22 @@ class Slashen < Gosu::Window
     [x3, y3, x4, y4]
   end
 
+  def vector x1, y1, x2, y2
+    dy = y2 - y1
+    dx = x2 - x1
+    [dx, dy]
+  end
+
+  def normal x1, y1, x2, y2
+    d = Gosu::distance x1, y1, x2, y2
+    x, y = vector x1, y1, x2, y2
+
+    [x/d, y/d]
+  end
+
   def draw
     gl do
-      if @dead
-        glClearColor 0, 0, 0, 1.0
-      else
-        glClearColor 0.3, 0.3, 0.3, 1.0
-      end
+      glClearColor 1, 1, 1, 1.0
       glClear GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT
     end
 
@@ -267,30 +277,14 @@ class Slashen < Gosu::Window
       y = nasty[:y]
 
       bx1, by1, bx2, by2 = endpoints_facing x, y, @x, @y, 16
-      px1, py1, px2, py2 = endpoints_facing @x, @y, x, y, 24
 
-      #gl 100 do
-        #glBegin GL_LINES
-        #glVertex3f x.to_f, y.to_f, 0.0
-        #glVertex3f @x.to_f, @y.to_f, 0.0
-        #glEnd
+      nx1, ny1 = normal @x, @y, bx1, by1
+      nx2, ny2 = normal @x, @y, bx2, by2
 
-        #glBegin GL_LINES
-        #glVertex3f bx1.to_f, by1.to_f, 0.0
-        #glVertex3f bx2.to_f, by2.to_f, 0.0
-        #glVertex3f px2.to_f, py2.to_f, 0.0
-        #glVertex3f px1.to_f, py1.to_f, 0.0
-        #glEnd
-      #end
-
-      a1 = Gosu::angle @x, @y, bx1, by1
-      a2 = Gosu::angle @x, @y, bx2, by2
-
-      ax1 = bx1 + Gosu::offset_x(a1, 1000)
-      ay1 = by1 + Gosu::offset_y(a1, 1000)
-
-      ax2 = bx2 + Gosu::offset_x(a2, 1000)
-      ay2 = by2 + Gosu::offset_y(a2, 1000)
+      sx1 = bx1 + nx1 * 1000
+      sy1 = by1 + ny1 * 1000
+      sx2 = bx2 + nx2 * 2000
+      sy2 = by2 + ny2 * 2000
 
       gl 0 do
         glDisable GL_DEPTH_TEST
@@ -299,12 +293,13 @@ class Slashen < Gosu::Window
         glBlendFuncSeparate GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO
 
         glBegin GL_QUADS
-        glColor4f 0, 0, 0, 0
-        glVertex3f ax1.to_f, ay1.to_f, 0.0
-        glVertex3f ax2.to_f, ay2.to_f, 0.0
-        glColor4f 0, 0, 0, 1
-        glVertex3f bx2.to_f, by2.to_f, 0.0
-        glVertex3f bx1.to_f, by1.to_f, 0.0
+        glColor4f 0.9, 0.9, 0.9, 1
+        glVertex3f bx1, by1, 0
+        glColor4f 0.9, 0.9, 0.9, 0
+        glVertex3f sx1, sy1, 0
+        glVertex3f sx2, sy2, 0
+        glColor4f 0.9, 0.9, 0.9, 1
+        glVertex3f bx2, by2, 0
         glEnd
       end
     end
