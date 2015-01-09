@@ -8,8 +8,8 @@ SHWING = 0.01
 MULTIKILL_SPEED = 0.003
 NASTY_TIME = 1000
 ATTACK_MOVE = 0.15
-NASTY_STAYS = 0.001
-SHADOW_LENGTH = 200
+NASTY_STAYS = 0.0001
+SHADOW_LENGTH = 2000
 
 UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
 
@@ -284,10 +284,10 @@ class Slashen < Gosu::Window
       nx1, ny1 = normal @x, @y, bx1, by1
       nx2, ny2 = normal @x, @y, bx2, by2
 
-      sx1 = bx1 + nx1 * 1000
-      sy1 = by1 + ny1 * 1000
-      sx2 = bx2 + nx2 * 2000
-      sy2 = by2 + ny2 * 2000
+      sx1 = bx1 + nx1 * SHADOW_LENGTH
+      sy1 = by1 + ny1 * SHADOW_LENGTH
+      sx2 = bx2 + nx2 * SHADOW_LENGTH
+      sy2 = by2 + ny2 * SHADOW_LENGTH
 
       gl 0 do
         glDisable GL_DEPTH_TEST
