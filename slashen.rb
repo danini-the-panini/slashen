@@ -56,6 +56,7 @@ class Slashen < Gosu::Window
     super
 
     @dude = Gosu::Image.new self, "dude.png"
+    @light = Gosu::Image.new self, "light.png"
     @dead_dude = Gosu::Image.new self, "dead_dude.png"
     @shwing_sprite = Gosu::Image.load_tiles self, "shwing.png", 72, 72, false
     @debug = Gosu::Image.new self, "debug.png"
@@ -266,9 +267,11 @@ class Slashen < Gosu::Window
 
   def draw
     gl do
-      glClearColor 1, 1, 1, 1.0
+      #glClearColor 1, 1, 1, 1.0
       glClear GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT
     end
+
+    @light.draw_rot(@x, @y, 0, 0) unless @dead
 
     @nasties.each do |nasty|
       next if nasty[:death]
@@ -293,12 +296,10 @@ class Slashen < Gosu::Window
         glBlendFuncSeparate GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO
 
         glBegin GL_QUADS
-        glColor4f 0.9, 0.9, 0.9, 1
+        glColor4f 0, 0, 0, 1
         glVertex3f bx1, by1, 0
-        glColor4f 0.9, 0.9, 0.9, 0
         glVertex3f sx1, sy1, 0
         glVertex3f sx2, sy2, 0
-        glColor4f 0.9, 0.9, 0.9, 1
         glVertex3f bx2, by2, 0
         glEnd
       end
