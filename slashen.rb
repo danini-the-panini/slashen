@@ -305,10 +305,13 @@ class Slashen < Gosu::Window
       end
     end
 
-    @dead_dude.draw_rot(@x, @y, 1, 0) if @dead
-
-    @nasties.each do |nasty|
-      (nasty[:death] ? @dead_nasty : @nasty).draw_rot nasty[:x], nasty[:y], 1, nasty[:a]
+    if @dead
+      @dead_dude.draw_rot(@x, @y, 1, 0)
+    else
+      @nasties.each do |nasty|
+        a = 255 - Gosu::distance(@x, @y, nasty[:x], nasty[:y]) * 256 / 500
+        (nasty[:death] ? @dead_nasty : @nasty).draw_rot nasty[:x], nasty[:y], 1, nasty[:a], 0.5, 0.5, 1, 1, Gosu::Color.rgba(a, a, a, 255)
+      end
     end
 
     @dude.draw_rot(@x, @y, 1, 0) unless @dead
