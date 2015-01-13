@@ -9,7 +9,7 @@ MULTIKILL_SPEED = 0.003
 NASTY_TIME = 1000
 ATTACK_MOVE = 0.15
 NASTY_STAYS = 0.0001
-SHADOW_LENGTH = 2000
+SHADOW_LENGTH = 500
 
 UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
 
@@ -273,48 +273,51 @@ class Slashen < Gosu::Window
 
     @light.draw_rot(@x, @y, 0, 0) unless @dead
 
-    @nasties.each do |nasty|
-      next if nasty[:death]
-
-      x = nasty[:x]
-      y = nasty[:y]
-
-      bx1, by1, bx2, by2 = endpoints_facing x, y, @x, @y, 16
-
-      nx1, ny1 = normal @x, @y, bx1, by1
-      nx2, ny2 = normal @x, @y, bx2, by2
-
-      sx1 = bx1 + nx1 * SHADOW_LENGTH
-      sy1 = by1 + ny1 * SHADOW_LENGTH
-      sx2 = bx2 + nx2 * SHADOW_LENGTH
-      sy2 = by2 + ny2 * SHADOW_LENGTH
-
-      gl 0 do
-        glDisable GL_DEPTH_TEST
-        glEnable GL_BLEND
-        glBlendEquationSeparate GL_FUNC_ADD, GL_FUNC_ADD
-        glBlendFuncSeparate GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO
-
-        glBegin GL_QUADS
-        glColor4f 0, 0, 0, 1
-        glVertex3f bx1, by1, 0
-        glVertex3f sx1, sy1, 0
-        glVertex3f sx2, sy2, 0
-        glVertex3f bx2, by2, 0
-        glEnd
-      end
-    end
-
     if @dead
       @dead_dude.draw_rot(@x, @y, 1, 0)
     else
       @nasties.each do |nasty|
-        a = 255 - Gosu::distance(@x, @y, nasty[:x], nasty[:y]) * 256 / 500
-        (nasty[:death] ? @dead_nasty : @nasty).draw_rot nasty[:x], nasty[:y], 1, nasty[:a], 0.5, 0.5, 1, 1, Gosu::Color.rgba(a, a, a, 255)
+        x = nasty[:x]
+        y = nasty[:y]
+        dist = Gosu::distance @x, @y, x, y
+        depth = 1.0 - (dist / SHADOW_LENGTH)
+
+        a = 255 - dist * 256 / 500
+
+        unless nasty[:death]
+
+          bx1, by1, bx2, by2 = endpoints_facing x, y, @x, @y, 16
+
+          nx1, ny1 = normal @x, @y, bx1, by1
+          nx2, ny2 = normal @x, @y, bx2, by2
+
+          sx1 = bx1 + nx1 * SHADOW_LENGTH
+          sy1 = by1 + ny1 * SHADOW_LENGTH
+          sx2 = bx2 + nx2 * SHADOW_LENGTH
+          sy2 = by2 + ny2 * SHADOW_LENGTH
+
+          gl depth do
+            glDisable GL_DEPTH_TEST
+            glEnable GL_BLEND
+            glBlendEquationSeparate GL_FUNC_ADD, GL_FUNC_ADD
+            glBlendFuncSeparate GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO
+
+            glBegin GL_QUADS
+            glColor4f 0, 0, 0, 1
+            glVertex3f bx1, by1, 0
+            glVertex3f sx1, sy1, 0
+            glVertex3f sx2, sy2, 0
+            glVertex3f bx2, by2, 0
+            glEnd
+          end
+        end
+
+        (nasty[:death] ? @dead_nasty : @nasty).draw_rot x, y, depth, nasty[:a], 0.5, 0.5, 1, 1, Gosu::Color.rgba(a, a, a, 255)
       end
+
     end
 
-    @dude.draw_rot(@x, @y, 1, 0) unless @dead
+    @dude.draw_rot(@x, @y, 255, 0) unless @dead
 
     if @shwing > 0.0
       i = (@shwing * @shwing_sprite.size).to_i
