@@ -57,6 +57,7 @@ class Slashen < Gosu::Window
 
     @dude = Gosu::Image.new self, "dude.png"
     @light = Gosu::Image.new self, "light.png"
+    @light_cone = Gosu::Image.new self, "light_cone.png"
     @dead_dude = Gosu::Image.new self, "dead_dude.png"
     @shwing_sprite = Gosu::Image.load_tiles self, "shwing.png", 72, 72, false
     @debug = Gosu::Image.new self, "debug.png"
@@ -271,8 +272,6 @@ class Slashen < Gosu::Window
       glClear GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT
     end
 
-    @light.draw_rot(@x, @y, 0, 0) unless @dead
-
     if @dead
       @dead_dude.draw_rot(@x, @y, 1, 0)
     else
@@ -320,16 +319,19 @@ class Slashen < Gosu::Window
     end
 
     unless @dead
-      @dude.draw_rot(@x, @y, 255, 0)
-
+      a = @me_a * 180.0 / Math::PI
       if @shwing > 0.0
         i = (@shwing * @shwing_sprite.size).to_i
         i = 0 if i < 0
         i = @shwing_sprite.size-1 if i >= @shwing_sprite.size
-        @shwing_sprite[i].draw_rot @x, @y, 1, @me_a*180.0/Math::PI
-        #@debug.draw_rot @x, @y, 1, @me_a*180.0/Math::PI
+        @shwing_sprite[i].draw_rot @x, @y, 2, a
+        #@debug.draw_rot @x, @y, 1, a
 
-        @speed.draw_rot @x, @y, 1, @me_a*180.0/Math::PI, 1.0, 0.5
+        @speed.draw_rot @x, @y, 2, a, 1.0, 0.5
+        @light_cone.draw_rot @x, @y, 0, a, 0.5, 0.5, 2, 2
+      else
+        @dude.draw_rot @x, @y, 1, a
+        @light.draw_rot @x, @y, 0, a
       end
     end
 
