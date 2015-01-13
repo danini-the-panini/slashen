@@ -305,8 +305,10 @@ class Slashen < Gosu::Window
             glBegin GL_QUADS
             glColor4f 0, 0, 0, 1
             glVertex3f bx1, by1, 0
+            glColor4f 0, 0, 0, 0
             glVertex3f sx1, sy1, 0
             glVertex3f sx2, sy2, 0
+            glColor4f 0, 0, 0, 1
             glVertex3f bx2, by2, 0
             glEnd
           end
