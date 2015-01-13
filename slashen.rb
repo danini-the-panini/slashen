@@ -319,16 +319,18 @@ class Slashen < Gosu::Window
 
     end
 
-    @dude.draw_rot(@x, @y, 255, 0) unless @dead
+    unless @dead
+      @dude.draw_rot(@x, @y, 255, 0)
 
-    if @shwing > 0.0
-      i = (@shwing * @shwing_sprite.size).to_i
-      i = 0 if i < 0
-      i = @shwing_sprite.size-1 if i >= @shwing_sprite.size
-      @shwing_sprite[i].draw_rot @x, @y, 1, @me_a*180.0/Math::PI
-      #@debug.draw_rot @x, @y, 1, @me_a*180.0/Math::PI
+      if @shwing > 0.0
+        i = (@shwing * @shwing_sprite.size).to_i
+        i = 0 if i < 0
+        i = @shwing_sprite.size-1 if i >= @shwing_sprite.size
+        @shwing_sprite[i].draw_rot @x, @y, 1, @me_a*180.0/Math::PI
+        #@debug.draw_rot @x, @y, 1, @me_a*180.0/Math::PI
 
-      @speed.draw_rot @x, @y, 1, @me_a*180.0/Math::PI, 1.0, 0.5
+        @speed.draw_rot @x, @y, 1, @me_a*180.0/Math::PI, 1.0, 0.5
+      end
     end
 
     unless @playing
