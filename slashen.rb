@@ -228,10 +228,12 @@ class Slashen < Gosu::Window
             end
             update_best_image
             update_you_got
-          end
+          else
+            nasty[:x] += (dx/d) * NASTY_SPEED * @delta
+            nasty[:y] += (dy/d) * NASTY_SPEED * @delta
 
-          nasty[:x] += (dx/d) * NASTY_SPEED * @delta
-          nasty[:y] += (dy/d) * NASTY_SPEED * @delta
+            nasty[:a] = Gosu::angle nasty[:x], nasty[:y], @x, @y
+          end
 
           false
         else
@@ -302,12 +304,12 @@ class Slashen < Gosu::Window
           glBlendFuncSeparate GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO
 
           glBegin GL_QUADS
-          glColor4f 0, 0, 0, 1
+          glColor4f 0, 0, 0, 0.9
           glVertex3f bx1, by1, 0
           glColor4f 0, 0, 0, 0
           glVertex3f sx1, sy1, 0
           glVertex3f sx2, sy2, 0
-          glColor4f 0, 0, 0, 1
+          glColor4f 0, 0, 0, 0.9
           glVertex3f bx2, by2, 0
           glEnd
         end
