@@ -58,6 +58,7 @@ class Slashen < Gosu::Window
     @dude = Gosu::Image.new self, "dude.png"
     @light = Gosu::Image.new self, "light.png"
     @light_cone = Gosu::Image.new self, "light_cone.png"
+    @light_dead = Gosu::Image.new self, "light_dead.png"
     @dead_dude = Gosu::Image.new self, "dead_dude.png"
     @shwing_sprite = Gosu::Image.load_tiles self, "shwing.png", 72, 72, false
     @debug = Gosu::Image.new self, "debug.png"
@@ -272,50 +273,47 @@ class Slashen < Gosu::Window
       glClear GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT
     end
 
-    if @dead
-      @dead_dude.draw_rot(@x, @y, 1, 0)
-    else
-      @nasties.each do |nasty|
-        x = nasty[:x]
-        y = nasty[:y]
-        dist = Gosu::distance @x, @y, x, y
-        depth = 1.0 - (dist / SHADOW_LENGTH)
+    @nasties.each do |nasty|
+      x = nasty[:x]
+      y = nasty[:y]
+      dist = Gosu::distance @x, @y, x, y
+      depth = 1.0 - (dist / SHADOW_LENGTH)
 
-        a = 255 - dist * 256 / 500
+      a = 1.0 - dist / 500
+      a *= 0.5 if @dead
+      a = a * 256
 
-        unless nasty[:death]
+      unless nasty[:death]
 
-          bx1, by1, bx2, by2 = endpoints_facing x, y, @x, @y, 16
+        bx1, by1, bx2, by2 = endpoints_facing x, y, @x, @y, 16
 
-          nx1, ny1 = normal @x, @y, bx1, by1
-          nx2, ny2 = normal @x, @y, bx2, by2
+        nx1, ny1 = normal @x, @y, bx1, by1
+        nx2, ny2 = normal @x, @y, bx2, by2
 
-          sx1 = bx1 + nx1 * SHADOW_LENGTH
-          sy1 = by1 + ny1 * SHADOW_LENGTH
-          sx2 = bx2 + nx2 * SHADOW_LENGTH
-          sy2 = by2 + ny2 * SHADOW_LENGTH
+        sx1 = bx1 + nx1 * SHADOW_LENGTH
+        sy1 = by1 + ny1 * SHADOW_LENGTH
+        sx2 = bx2 + nx2 * SHADOW_LENGTH
+        sy2 = by2 + ny2 * SHADOW_LENGTH
 
-          gl depth do
-            glDisable GL_DEPTH_TEST
-            glEnable GL_BLEND
-            glBlendEquationSeparate GL_FUNC_ADD, GL_FUNC_ADD
-            glBlendFuncSeparate GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO
+        gl depth do
+          glDisable GL_DEPTH_TEST
+          glEnable GL_BLEND
+          glBlendEquationSeparate GL_FUNC_ADD, GL_FUNC_ADD
+          glBlendFuncSeparate GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO
 
-            glBegin GL_QUADS
-            glColor4f 0, 0, 0, 1
-            glVertex3f bx1, by1, 0
-            glColor4f 0, 0, 0, 0
-            glVertex3f sx1, sy1, 0
-            glVertex3f sx2, sy2, 0
-            glColor4f 0, 0, 0, 1
-            glVertex3f bx2, by2, 0
-            glEnd
-          end
+          glBegin GL_QUADS
+          glColor4f 0, 0, 0, 1
+          glVertex3f bx1, by1, 0
+          glColor4f 0, 0, 0, 0
+          glVertex3f sx1, sy1, 0
+          glVertex3f sx2, sy2, 0
+          glColor4f 0, 0, 0, 1
+          glVertex3f bx2, by2, 0
+          glEnd
         end
-
-        (nasty[:death] ? @dead_nasty : @nasty).draw_rot x, y, depth, nasty[:a], 0.5, 0.5, 1, 1, Gosu::Color.rgba(a, a, a, 255)
       end
 
+      (nasty[:death] ? @dead_nasty : @nasty).draw_rot x, y, depth, nasty[:a], 0.5, 0.5, 1, 1, Gosu::Color.rgba(a, a, a, 255)
     end
 
     unless @dead
@@ -333,6 +331,9 @@ class Slashen < Gosu::Window
         @dude.draw_rot @x, @y, 1, a
         @light.draw_rot @x, @y, 0, a
       end
+    else
+      @light_dead.draw_rot @x, @y, 0, 0, 0.5, 0.5, 2, 2
+      @dead_dude.draw_rot @x, @y, 0, 0
     end
 
     unless @playing
