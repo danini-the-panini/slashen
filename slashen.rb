@@ -57,7 +57,6 @@ class Slashen < Gosu::Window
 
     @dude = Gosu::Image.new self, "dude.png"
     @light = Gosu::Image.new self, "light.png"
-    @light_cone = Gosu::Image.new self, "light_cone.png"
     @light_dead = Gosu::Image.new self, "light_dead.png"
     @dead_dude = Gosu::Image.new self, "dead_dude.png"
     @shwing_sprite = Gosu::Image.load_tiles self, "shwing.png", 72, 72, false
@@ -328,11 +327,10 @@ class Slashen < Gosu::Window
         #@debug.draw_rot @x, @y, 1, a
 
         @speed.draw_rot @x, @y, 2, a, 1.0, 0.5
-        @light_cone.draw_rot @x, @y, 0, a, 0.5, 0.5, 2, 2
       else
         @dude.draw_rot @x, @y, 1, a
-        @light.draw_rot @x, @y, 0, a
       end
+      @light.draw_rot @x, @y, 0, a
     else
       @light_dead.draw_rot @x, @y, 0, 0, 0.5, 0.5, 2, 2
       @dead_dude.draw_rot @x, @y, 0, 0

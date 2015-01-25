@@ -10,5 +10,5 @@ PLATFORMS
 
 DEPENDENCIES
   ffi
-  gosu (= 0.8.6)
+  gosu (~> 0.8)
   opengl-bindings
